@@ -1,6 +1,23 @@
-class Child {
-  final String _id, age, gender, location, image, imageID, status;
+class ChildResponse{
+  final String type ,message ;
+  final List<Child> childs;
 
+  ChildResponse(this.type, this.message, this.childs);
+
+  ChildResponse.fromJson(Map<String, dynamic> json)
+      : type = json['type'],
+        message = json['age'],
+        childs = json['childs'];
+
+
+  //List<Child> childList = childs.map((c) => Child.fromJson(c)).toList();
+
+
+
+}
+class Child {
+  final String _id, gender, location, image, imageID, status;
+  final int age;
   Child(
     this._id,
     this.age,

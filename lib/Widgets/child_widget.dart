@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'const_style.dart';
 
 class ChildCard extends StatelessWidget {
-  final String image , name , age , status ;
-
+  final String image , name  , status ;
+  final int age;
   ChildCard({required this.image, required this.name, required this.age, required this.status});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+      padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.grey.shade100.withOpacity(.5),

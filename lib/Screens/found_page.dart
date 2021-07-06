@@ -14,14 +14,14 @@ import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 import 'home_page.dart';
 
-class LostPage extends StatefulWidget {
-  const LostPage({Key? key}) : super(key: key);
+class FoundPage extends StatefulWidget {
+  const FoundPage({Key? key}) : super(key: key);
 
   @override
-  _LostPageState createState() => _LostPageState();
+  _FoundPageState createState() => _FoundPageState();
 }
 
-class _LostPageState extends State<LostPage> {
+class _FoundPageState extends State<FoundPage> {
   PickedFile? _image;
   bool _isLoading = false;
   final TextEditingController ageController = TextEditingController();
@@ -31,8 +31,9 @@ class _LostPageState extends State<LostPage> {
   Future getCameraImage(context) async {
     final _picker = ImagePicker();
 
-    final PickedFile? pickedFile = await _picker.getImage(
-      source: ImageSource.gallery,
+    final PickedFile? pickedFile =
+        await _picker.getImage(
+            source: ImageSource.camera,
       imageQuality: 50,
     );
 
@@ -46,7 +47,7 @@ class _LostPageState extends State<LostPage> {
       _isLoading = true;
     });
 
-    var url = Uri.parse("https://mafkoud-api.herokuapp.com/api/child/lost");
+    var url = Uri.parse("https://mafkoud-api.herokuapp.com/api/child/found");
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
@@ -68,7 +69,7 @@ class _LostPageState extends State<LostPage> {
     request.fields['age'] = ageController.text.trim();
     request.fields['gender'] = genderController.text.trim();
     request.fields['location'] = locationController.text.trim();
-    request.fields['status'] = 'lost';
+    request.fields['status'] = 'found';
     request.fields['lostDate'] = '11 AM';
 
     request.files.add(file);
@@ -113,7 +114,7 @@ class _LostPageState extends State<LostPage> {
               child: SizedBox(
                 height: 100,
                 child: Image.asset(
-                  'images/lost_logo.png',
+                  'images/found_logo.png',
                   fit: BoxFit.contain,
                 ),
               ),
@@ -134,13 +135,13 @@ class _LostPageState extends State<LostPage> {
                 : IconButton(
                     onPressed: () => getCameraImage(context),
                     icon: Image.asset(
-                      'images/icons/choose_img.png',
+                      'images/icons/open_camera.png',
                     ),
                   ),
             TextButton(
               onPressed: () => getCameraImage(context),
               child: Text(
-                'Add Photo',
+                'Take Photo',
                 style: ConstStyle.semiBoldedColoredText,
               ),
             ),
