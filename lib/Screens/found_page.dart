@@ -5,12 +5,9 @@ import 'package:mfqood/Widgets/custom_button.dart';
 import 'package:mfqood/Widgets/simple_custom_input.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
 import 'home_page.dart';
 

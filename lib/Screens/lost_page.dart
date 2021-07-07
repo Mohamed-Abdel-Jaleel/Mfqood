@@ -5,14 +5,14 @@ import 'package:mfqood/Widgets/custom_button.dart';
 import 'package:mfqood/Widgets/simple_custom_input.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart';
-import 'package:http_parser/http_parser.dart';
 import 'home_page.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
+
 
 class LostPage extends StatefulWidget {
   const LostPage({Key? key}) : super(key: key);
@@ -22,7 +22,7 @@ class LostPage extends StatefulWidget {
 }
 
 class _LostPageState extends State<LostPage> {
-  PickedFile? _image;
+  File? _image;
   bool _isLoading = false;
   final TextEditingController ageController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
@@ -35,10 +35,31 @@ class _LostPageState extends State<LostPage> {
       source: ImageSource.gallery,
       imageQuality: 50,
     );
+    _image = File(pickedFile!.path);
+
+    final File imageFile = _image!;
+    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(imageFile);
+    final FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
+
+    final List<Face> faces = await faceDetector.processImage(visionImage);
+    int x= faces[0].boundingBox.left.toInt();
+    int x_2= faces[0].boundingBox.right.toInt();
+
+    int y= faces[0].boundingBox.top.toInt();
+    int y_2= faces[0].boundingBox.bottom.toInt();
+    int width = x_2-x;
+    int height = y_2 - y;
+
+    print("top$x bottom$y width$width height$height");
+
+    File croppedFile = await FlutterNativeImage
+        .cropImage( _image!.path , x, y, width, height);
 
     setState(() {
-      _image = pickedFile;
+      _image = croppedFile;
     });
+
+
   }
 
   _addLostChild(context) async {
@@ -120,12 +141,12 @@ class _LostPageState extends State<LostPage> {
             ),
             _image != null
                 ? Container(
-                    width: 100,
-                    height: 100,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
+                    width: 240,
+                    height: 240,
+                    // clipBehavior: Clip.antiAlias,
+                    // decoration: BoxDecoration(
+                    //   shape: BoxShape.circle,
+                    // ),
                     child: Image.file(
                       File(_image!.path),
                       fit: BoxFit.contain,

@@ -27,9 +27,10 @@ class CustomPasswordInput extends StatefulWidget {
 class _CustomPasswordInputState extends State<CustomPasswordInput> {
   late bool passwordVisibility;
   @override
-  void initState() {
-    passwordVisibility = false;
-  }
+
+  // void initState() {
+  //   passwordVisibility = false;
+  // }
 
 
   @override
