@@ -55,8 +55,11 @@ class _LostPageState extends State<LostPage> {
     File croppedFile = await FlutterNativeImage
         .cropImage( _image!.path , x, y, width, height);
 
+    File resizedImage = await FlutterNativeImage.compressImage(croppedFile.path, quality:100,
+        targetWidth: 240, targetHeight: 240);
+
     setState(() {
-      _image = croppedFile;
+      _image = resizedImage;
     });
 
 
