@@ -13,7 +13,6 @@ import 'home_page.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 
-
 class LostPage extends StatefulWidget {
   const LostPage({Key? key}) : super(key: key);
 
@@ -33,36 +32,44 @@ class _LostPageState extends State<LostPage> {
 
     final PickedFile? pickedFile = await _picker.getImage(
       source: ImageSource.gallery,
-      imageQuality: 50,
+      // imageQuality: 100,
     );
     _image = File(pickedFile!.path);
 
     final File imageFile = _image!;
-    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromFile(imageFile);
+    final FirebaseVisionImage visionImage =
+        FirebaseVisionImage.fromFile(imageFile);
     final FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
 
     final List<Face> faces = await faceDetector.processImage(visionImage);
-    int x= faces[0].boundingBox.left.toInt();
-    int x_2= faces[0].boundingBox.right.toInt();
+    int x = faces[0].boundingBox.left.toInt();
+    int x_2 = faces[0].boundingBox.right.toInt();
 
-    int y= faces[0].boundingBox.top.toInt();
-    int y_2= faces[0].boundingBox.bottom.toInt();
-    int width = x_2-x;
+    int y = faces[0].boundingBox.top.toInt();
+    int y_2 = faces[0].boundingBox.bottom.toInt();
+    int width = x_2 - x;
     int height = y_2 - y;
+
+    print("left$x");
+    print("right$x_2");
+    print("top$y");
+    print("bottom$y_2");
 
     print("top$x bottom$y width$width height$height");
 
-    File croppedFile = await FlutterNativeImage
-        .cropImage( _image!.path , x, y, width, height);
+    File croppedFile =
+        await FlutterNativeImage.cropImage(_image!.path, x, y, width, height);
 
-    File resizedImage = await FlutterNativeImage.compressImage(croppedFile.path, quality:100,
-        targetWidth: 240, targetHeight: 240);
+    File resizedImage = await FlutterNativeImage.compressImage(
+      croppedFile.path,
+      // quality: 100,
+      targetWidth: 240,
+      targetHeight: 240,
+    );
 
     setState(() {
       _image = resizedImage;
     });
-
-
   }
 
   _addLostChild(context) async {
