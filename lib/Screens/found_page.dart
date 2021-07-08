@@ -10,6 +10,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
 import 'home_page.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 
 class FoundPage extends StatefulWidget {
   const FoundPage({Key? key}) : super(key: key);
@@ -19,23 +21,67 @@ class FoundPage extends StatefulWidget {
 }
 
 class _FoundPageState extends State<FoundPage> {
-  PickedFile? _image;
+  File? _image;
   bool _isLoading = false;
   final TextEditingController ageController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
+  // Future getCameraImage(context) async {
+  //   final _picker = ImagePicker();
+  //
+  //   final PickedFile? pickedFile =
+  //       await _picker.getImage(
+  //           source: ImageSource.camera,
+  //     imageQuality: 50,
+  //   );
+  //
+  //   setState(() {
+  //     _image = pickedFile;
+  //   });
+  // }
   Future getCameraImage(context) async {
     final _picker = ImagePicker();
 
-    final PickedFile? pickedFile =
-        await _picker.getImage(
-            source: ImageSource.camera,
-      imageQuality: 50,
+    final PickedFile? pickedFile = await _picker.getImage(
+      source: ImageSource.gallery,
+      // imageQuality: 100,
+    );
+    _image = File(pickedFile!.path);
+
+    final File imageFile = _image!;
+    final FirebaseVisionImage visionImage =
+    FirebaseVisionImage.fromFile(imageFile);
+    final FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
+
+    final List<Face> faces = await faceDetector.processImage(visionImage);
+    int x = faces[0].boundingBox.left.toInt();
+    int x_2 = faces[0].boundingBox.right.toInt();
+
+    int y = faces[0].boundingBox.top.toInt();
+    int y_2 = faces[0].boundingBox.bottom.toInt();
+    int width = x_2 - x;
+    int height = y_2 - y;
+
+    print("left$x");
+    print("right$x_2");
+    print("top$y");
+    print("bottom$y_2");
+
+    print("top$x bottom$y width$width height$height");
+
+    File croppedFile =
+    await FlutterNativeImage.cropImage(_image!.path, x, y, width, height);
+
+    File resizedImage = await FlutterNativeImage.compressImage(
+      croppedFile.path,
+      // quality: 50,
+      targetWidth: 224,
+      targetHeight: 224,
     );
 
     setState(() {
-      _image = pickedFile;
+      _image = resizedImage;
     });
   }
 
@@ -103,6 +149,7 @@ class _FoundPageState extends State<FoundPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CusomActionBar(
+              openDrawer: (){},
               hasBackground: false,
               hasIconButtons: true,
             ),

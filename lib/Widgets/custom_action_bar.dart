@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../clip_path_class.dart';
 
 class CusomActionBar extends StatelessWidget {
-  const CusomActionBar(
-      {Key? key, required this.hasBackground, required this.hasIconButtons})
-      : super(key: key);
+
+
+  CusomActionBar({required this.hasBackground, required this.openDrawer, required this.hasIconButtons});
+
   final bool? hasBackground;
+  final VoidCallback openDrawer ;
   final bool? hasIconButtons;
 
   @override
@@ -30,8 +32,7 @@ class CusomActionBar extends StatelessWidget {
                  icon: Image.asset(
                    'images/icons/drawer.png',
                  ),
-                 onPressed: () {
-                 },
+                 onPressed: openDrawer,
                ),
 
                Image.asset(
@@ -65,19 +66,10 @@ class CusomActionBar extends StatelessWidget {
                 'images/icons/drawer.png',
                 color: Theme.of(context).primaryColor,
               ),
-              onPressed: () {
-              },
+              onPressed: openDrawer,
             ),
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(0,40,0,0),
-          //   child: Image.asset(
-          //     'images/lost_logo.png',
-          //     fit: BoxFit.fill,
-          //   ),
-          // ),
           IconButton(
-              onPressed: () {
-              },
+              onPressed: () {},
               icon: Image.asset(
                 'images/icons/notification_colored.png',
               ),
@@ -88,4 +80,5 @@ class CusomActionBar extends StatelessWidget {
     );
 
   }
+
 }

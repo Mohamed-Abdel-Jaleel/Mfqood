@@ -62,7 +62,7 @@ class _LostPageState extends State<LostPage> {
 
     File resizedImage = await FlutterNativeImage.compressImage(
       croppedFile.path,
-      // quality: 100,
+      // quality: 50,
       targetWidth: 224,
       targetHeight: 224,
     );
@@ -136,6 +136,7 @@ class _LostPageState extends State<LostPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CusomActionBar(
+              openDrawer: (){},
               hasBackground: false,
               hasIconButtons: true,
             ),
@@ -151,12 +152,12 @@ class _LostPageState extends State<LostPage> {
             ),
             _image != null
                 ? Container(
-                    width: 240,
-                    height: 240,
-                    // clipBehavior: Clip.antiAlias,
-                    // decoration: BoxDecoration(
-                    //   shape: BoxShape.circle,
-                    // ),
+                    width: 140,
+                    height: 140,
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                    ),
                     child: Image.file(
                       File(_image!.path),
                       fit: BoxFit.contain,
@@ -168,6 +169,7 @@ class _LostPageState extends State<LostPage> {
                       'images/icons/choose_img.png',
                     ),
                   ),
+
             TextButton(
               onPressed: () => getCameraImage(context),
               child: Text(

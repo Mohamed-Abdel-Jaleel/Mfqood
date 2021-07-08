@@ -95,6 +95,7 @@ class _SignupPageState extends State<SignupPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CusomActionBar(
+              openDrawer: (){},
               hasBackground: true,
               hasIconButtons: false,
             ),

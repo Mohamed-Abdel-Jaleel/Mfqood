@@ -87,6 +87,7 @@ class _LoginPageState extends State<LoginPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             CusomActionBar(
+              openDrawer: (){},
               hasBackground: true,
               hasIconButtons: false,
             ),

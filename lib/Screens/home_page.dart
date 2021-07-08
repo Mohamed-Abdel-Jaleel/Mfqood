@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:mfqood/Models/child.dart';
@@ -6,6 +7,7 @@ import 'package:mfqood/Screens/found_page.dart';
 import 'package:mfqood/Screens/login_page.dart';
 import 'package:mfqood/Screens/lost_page.dart';
 import 'package:mfqood/Widgets/child_widget.dart';
+import 'package:mfqood/Widgets/const_style.dart';
 import 'package:mfqood/Widgets/custom_action_bar.dart';
 import 'package:mfqood/Widgets/custom_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,11 +26,11 @@ class _HomePageState extends State<HomePage> {
   Future logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove("token");
-    Navigator.of(context).push(MaterialPageRoute(
+    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
       builder: (context) {
-        return LoginPage();
+        return HomePage();
       },
-    ));
+    ), (route) => false);
   }
 
   Future<List<Child>> getChildData() async {
@@ -67,86 +69,145 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // key: scaffoldKey,
-      resizeToAvoidBottomInset: false, //new line
-      backgroundColor: Colors.white,
-      body: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CusomActionBar(
-                hasBackground: true,
-                hasIconButtons: true,
-              ),
-              CustomButton(
-                isLoading: false,
-                radius: 20,
-                backgroundColor: Theme.of(context).primaryColor,
-                text: 'I lost someone',
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context){
-                            return LostPage();
-                          }
-                      )
-                  );
-                },
-                height: 80,
-                padding: 36,
-              ),
-              CustomButton(
-                isLoading: false,
-                radius: 20,
-                backgroundColor: Theme.of(context).primaryColor,
-                text: 'I Found someone',
-                onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context){
-                            return FoundPage();
-                          }
-                      )
-                  );
-                },
-                height: 80,
-                padding: 36,
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(36, 20, 36, 10),
-                child: Container(
-                  height: 1,
-                  width: 200,
-                  color: Colors.grey,
+        key: _scaffoldKey,
+        drawer: buildDrawer(context),
+        resizeToAvoidBottomInset: false,
+        //new line
+        backgroundColor: Colors.white,
+        body: Builder(
+          builder: (context) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CusomActionBar(
+                  openDrawer: () {
+                    print("fgggggggg");
+
+                    Scaffold.of(context).openDrawer();
+                  },
+                  hasBackground: true,
+                  hasIconButtons: true,
                 ),
-              ),
-
-              Expanded(
-
-                child: ListView(
-                  primary: false,
-                  shrinkWrap: true,
-                  // physics: NeverScrollableScrollPhysics(),
-                  children: <Widget>[
-                    ...childs.map((e) {
-                      return ChildCard(
-                        image: e.image,
-                        name: e.location,
-                        age: e.age,
-                        status: e.status,
-                      );
-                    }).toList(),
-                  ],
+                CustomButton(
+                  isLoading: false,
+                  radius: 20,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  text: 'I lost someone',
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return LostPage();
+                    }));
+                  },
+                  height: 80,
+                  padding: 36,
                 ),
+                CustomButton(
+                  isLoading: false,
+                  radius: 20,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  text: 'I Found someone',
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return FoundPage();
+                    }));
+                  },
+                  height: 80,
+                  padding: 36,
+                ),
+                Padding(
+                  padding: EdgeInsets.fromLTRB(36, 20, 36, 10),
+                  child: Container(
+                    height: 1,
+                    width: 200,
+                    color: Colors.grey,
+                  ),
+                ),
+                Expanded(
+                  child: ListView(
+                    primary: false,
+                    shrinkWrap: true,
+                    // physics: NeverScrollableScrollPhysics(),
+                    children: <Widget>[
+                      ...childs.map((e) {
+                        return ChildCard(
+                          image: e.image,
+                          name: e.location,
+                          age: e.age,
+                          status: e.status,
+                        );
+                      }).toList(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  Widget buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        children: [
+          DrawerHeader(
+            child: Container(
+              width: 140,
+              height: 140,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
               ),
+              // child: Image.file(
+              //   File(_image!.path),
+              //   fit: BoxFit.contain,
+              // ),
+              child: Container(
+                color: Colors.red,
+              ),
+            ),
+            padding: EdgeInsets.all(24),
+          ),
 
+          ListTile(
+            trailing: Icon(
+                Icons.edit,
+            ),
+            title: Text(
+              "Mohaemd Ateya",
+              style: ConstStyle.semiBoldedText,
+            ),
+            // dense: true,
+          ),
+          ListTile(
+            trailing: Icon(
+                Icons.edit,
+            ),
+            title: Text(
+              "+201203317534",
+              style: ConstStyle.semiBoldedText,
+            ),
+            // dense: true,
+          ),
+          Spacer(),
+          CustomButton(
+            isLoading: false,
+            text: 'Add',
+            onPressed: (){},
+            height: 65,
+            padding: 36,
+            radius: 20,
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
 
-            ],
-        ),
+        ],
       ),
     );
   }

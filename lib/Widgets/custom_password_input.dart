@@ -28,10 +28,11 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
   late bool passwordVisibility;
   @override
 
-  // void initState() {
-  //   passwordVisibility = false;
-  // }
 
+  @override
+  void initState() {
+    passwordVisibility = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,4 +84,5 @@ class _CustomPasswordInputState extends State<CustomPasswordInput> {
     );
 
   }
+
 }
