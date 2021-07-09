@@ -1,45 +1,30 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:mfqood/Widgets/const_style.dart';
-import 'package:mfqood/Widgets/custom_action_bar.dart';
 import 'package:mfqood/Widgets/custom_button.dart';
 import 'package:mfqood/Widgets/simple_custom_input.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
-import 'home_page.dart';
-import 'package:firebase_ml_vision/firebase_ml_vision.dart';
-import 'package:flutter_native_image/flutter_native_image.dart';
 
-class FoundPage extends StatefulWidget {
-  const FoundPage({Key? key}) : super(key: key);
+class UpdateUser extends StatefulWidget {
+  const UpdateUser({Key? key}) : super(key: key);
 
   @override
-  _FoundPageState createState() => _FoundPageState();
+  _UpdateUserState createState() => _UpdateUserState();
 }
 
-class _FoundPageState extends State<FoundPage> {
+class _UpdateUserState extends State<UpdateUser> {
+
   File? _image;
+  String _imgPath = "images/icons/open_camera.png";
   bool _isLoading = false;
   final TextEditingController ageController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
-  // Future getCameraImage(context) async {
-  //   final _picker = ImagePicker();
-  //
-  //   final PickedFile? pickedFile =
-  //       await _picker.getImage(
-  //           source: ImageSource.camera,
-  //     imageQuality: 50,
-  //   );
-  //
-  //   setState(() {
-  //     _image = pickedFile;
-  //   });
-  // }
   Future getCameraImage(context) async {
     final _picker = ImagePicker();
 
@@ -48,52 +33,15 @@ class _FoundPageState extends State<FoundPage> {
       // imageQuality: 100,
     );
     _image = File(pickedFile!.path);
-
-    final File imageFile = _image!;
-    final FirebaseVisionImage visionImage =
-    FirebaseVisionImage.fromFile(imageFile);
-    final FaceDetector faceDetector = FirebaseVision.instance.faceDetector();
-
-    final List<Face> faces = await faceDetector.processImage(visionImage);
-    int x = faces[0].boundingBox.left.toInt();
-    int x_2 = faces[0].boundingBox.right.toInt();
-
-    int y = faces[0].boundingBox.top.toInt();
-    int y_2 = faces[0].boundingBox.bottom.toInt();
-    int width = x_2 - x;
-    int height = y_2 - y;
-
-    print("left$x");
-    print("right$x_2");
-    print("top$y");
-    print("bottom$y_2");
-
-    print("top$x bottom$y width$width height$height");
-
-    File croppedFile =
-    await FlutterNativeImage.cropImage(_image!.path, x, y, width, height);
-
-    File resizedImage = await FlutterNativeImage.compressImage(
-      croppedFile.path,
-      // quality: 50,
-      targetWidth: 224,
-      targetHeight: 224,
-    );
-
-    setState(() {
-      _image = resizedImage;
-    });
+    uploadUserImage(_image!.path);
   }
 
-  _addLostChild(context) async {
-    setState(() {
-      _isLoading = true;
-    });
-
-    var url = Uri.parse("https://mafkoud-api.herokuapp.com/api/child/found");
-
+  uploadUserImage(imagePath) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
+
+    var url = Uri.parse(
+        "https://mafkoud-api.herokuapp.com/api/user/me/profile-image");
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -101,41 +49,25 @@ class _FoundPageState extends State<FoundPage> {
     };
     final file = await http.MultipartFile.fromPath(
       'image',
-      _image!.path,
-      contentType: new MediaType('image', 'jpg'),
+      imagePath,
+      contentType: new MediaType('image', 'jpeg'),
     );
 
-    var request = new http.MultipartRequest("POST", url);
+    var request = new http.MultipartRequest("PATCH", url);
 
     request.headers.addAll(headers);
-
-    request.fields['age'] = ageController.text.trim();
-    request.fields['gender'] = genderController.text.trim();
-    request.fields['location'] = locationController.text.trim();
-    request.fields['status'] = 'found';
-    request.fields['lostDate'] = '11 AM';
-
     request.files.add(file);
-
-    // content type for multi part file
-    // final mimeTypeData = lookupMimeType(_image!.path, headerBytes: [0xFF, 0xD8])!.split('/');
-    // contentType: MediaType(mimeTypeData[0], mimeTypeData[1])
 
     request.send().then((response) {
       if (response.statusCode == 201 || response.statusCode == 200) {
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-          builder: (context) {
-            return HomePage();
-          },
-        ), (route) => false);
-      } else {
         setState(() {
-          _isLoading = false;
+          _imgPath = imagePath;
         });
+      } else {
+        print("Failed");
       }
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,11 +80,6 @@ class _FoundPageState extends State<FoundPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CusomActionBar(
-              openDrawer: (){},
-              hasBackground: false,
-              hasIconButtons: true,
-            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
               child: SizedBox(
@@ -165,23 +92,23 @@ class _FoundPageState extends State<FoundPage> {
             ),
             _image != null
                 ? Container(
-                    width: 100,
-                    height: 100,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                    ),
-                    child: Image.file(
-                      File(_image!.path),
-                      fit: BoxFit.contain,
-                    ),
-                  )
+              width: 100,
+              height: 100,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child: Image.file(
+                File(_image!.path),
+                fit: BoxFit.contain,
+              ),
+            )
                 : IconButton(
-                    onPressed: () => getCameraImage(context),
-                    icon: Image.asset(
-                      'images/icons/open_camera.png',
-                    ),
-                  ),
+              onPressed: () => getCameraImage(context),
+              icon: Image.asset(
+                'images/icons/open_camera.png',
+              ),
+            ),
             TextButton(
               onPressed: () => getCameraImage(context),
               child: Text(
@@ -222,7 +149,7 @@ class _FoundPageState extends State<FoundPage> {
             CustomButton(
               isLoading: _isLoading,
               text: 'Add',
-              onPressed: () => _addLostChild(context),
+              onPressed: () => getCameraImage(context),
               height: 65,
               padding: 36,
               radius: 20,
@@ -236,4 +163,5 @@ class _FoundPageState extends State<FoundPage> {
       ),
     );
   }
+
 }

@@ -6,12 +6,15 @@ import 'package:mfqood/Models/child.dart';
 import 'package:mfqood/Screens/found_page.dart';
 import 'package:mfqood/Screens/login_page.dart';
 import 'package:mfqood/Screens/lost_page.dart';
+import 'package:mfqood/Screens/update_user_data.dart';
 import 'package:mfqood/Widgets/child_widget.dart';
 import 'package:mfqood/Widgets/const_style.dart';
 import 'package:mfqood/Widgets/custom_action_bar.dart';
 import 'package:mfqood/Widgets/custom_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:http_parser/http_parser.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -22,22 +25,53 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Child> childs = [];
+  String? userEmail, userPhone, userName, userImage, id, token;
+
+  @override
+  void initState() {
+    getChildData().then((value) {
+      setState(() {
+        childs.addAll(value);
+      });
+    });
+    getUserData();
+    super.initState();
+  }
 
   Future logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove("token");
     Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
       builder: (context) {
-        return HomePage();
+        return LoginPage();
       },
     ), (route) => false);
+  }
+
+  Future getUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    id = prefs.getString("id");
+    var url = Uri.parse("https://mafkoud-api.herokuapp.com/api/user/$id");
+
+    var res = await http.get(url);
+    if (res.statusCode == 200) {
+      print(res.body);
+      var jsonResponse = json.decode(res.body);
+
+      setState(() {
+        userEmail = jsonResponse["user"]["email"];
+        userPhone = jsonResponse["user"]["phone"];
+        userName = jsonResponse["user"]["name"];
+        userImage = jsonResponse["user"]["profileImage"];
+      });
+    }
   }
 
   Future<List<Child>> getChildData() async {
     var url = Uri.parse("https://mafkoud-api.herokuapp.com/api/child");
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("token");
+    token = prefs.getString("token");
 
     var res = await http.get(url, headers: {
       'Content-Type': 'application/json',
@@ -59,15 +93,7 @@ class _HomePageState extends State<HomePage> {
     return data;
   }
 
-  @override
-  void initState() {
-    getChildData().then((value) {
-      setState(() {
-        childs.addAll(value);
-      });
-    });
-    super.initState();
-  }
+
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -87,8 +113,6 @@ class _HomePageState extends State<HomePage> {
               children: [
                 CusomActionBar(
                   openDrawer: () {
-                    print("fgggggggg");
-
                     Scaffold.of(context).openDrawer();
                   },
                   hasBackground: true,
@@ -155,58 +179,119 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildDrawer(BuildContext context) {
     return Drawer(
-      child: ListView(
+      child: Column(
         children: [
-          DrawerHeader(
-            child: Container(
-              width: 140,
-              height: 140,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
+          ListView(
+            primary: false,
+            shrinkWrap: true,
+            children: [
+              SizedBox(
+                height: 24,
               ),
-              // child: Image.file(
-              //   File(_image!.path),
-              //   fit: BoxFit.contain,
-              // ),
-              child: Container(
-                color: Colors.red,
+              DrawerHeader(
+                child: Container(
+                  width: 140,
+                  height: 140,
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).primaryColor,
+                      width: 4,
+                    ),
+                  ),
+                  child: userImage == null || userImage == ""
+                      ? IconButton(
+                          onPressed: () {
+                            Navigator.of(context)
+                                .push(MaterialPageRoute(builder: (context) {
+                              return UpdateUser();
+                            }));
+                          },
+                          icon: Image.asset(
+                            "images/icons/open_camera.png",
+                            fit: BoxFit.scaleDown,
+                          ),
+                        )
+                      : Image.network(
+                          userImage!,
+                          fit: BoxFit.contain,
+                        ),
+                ),
+                padding: EdgeInsets.all(24),
               ),
-            ),
-            padding: EdgeInsets.all(24),
-          ),
-
-          ListTile(
-            trailing: Icon(
-                Icons.edit,
-            ),
-            title: Text(
-              "Mohaemd Ateya",
-              style: ConstStyle.semiBoldedText,
-            ),
-            // dense: true,
-          ),
-          ListTile(
-            trailing: Icon(
-                Icons.edit,
-            ),
-            title: Text(
-              "+201203317534",
-              style: ConstStyle.semiBoldedText,
-            ),
-            // dense: true,
+              ListTile(
+                trailing: IconButton(
+                  onPressed: (){
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return UpdateUser();
+                    }));
+                  },
+                  icon: Icon(
+                    Icons.edit,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                title: Text(
+                  userName == null ? "User Name" : userName!,
+                  style: ConstStyle.semiBoldedText,
+                ),
+                // dense: true,
+              ),
+              ListTile(
+                trailing: IconButton(
+                  onPressed: (){
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return UpdateUser();
+                    }));
+                  },
+                  icon: Icon(
+                    Icons.edit,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                title: Text(
+                  userPhone == null ? "Phone Number" : userPhone!,
+                  style: ConstStyle.semiBoldedText,
+                ),
+                // dense: true,
+              ),
+              ListTile(
+                trailing: IconButton(
+                  onPressed: (){
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return UpdateUser();
+                    }));
+                  },
+                  icon: Icon(
+                    Icons.edit,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                ),
+                title: Text(
+                  userEmail == null ? "User Email" : userEmail!,
+                  style: ConstStyle.semiBoldedText,
+                ),
+                // dense: true,
+              ),
+            ],
           ),
           Spacer(),
           CustomButton(
             isLoading: false,
-            text: 'Add',
-            onPressed: (){},
+            text: 'Logout',
+            onPressed: logout,
             height: 65,
             padding: 36,
             radius: 20,
             backgroundColor: Theme.of(context).primaryColor,
           ),
-
+          SizedBox(
+            height: 24,
+          ),
         ],
       ),
     );

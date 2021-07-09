@@ -178,6 +178,10 @@ class _LostPageState extends State<LostPage> {
               ),
             ),
             SimpleInput(
+              controller: locationController,
+              hint: "Enter CHild Name ...",
+            ),
+            SimpleInput(
               controller: ageController,
               hint: "Enter Child Age ...",
             ),
@@ -185,10 +189,7 @@ class _LostPageState extends State<LostPage> {
               controller: genderController,
               hint: "Enter Child gender ...",
             ),
-            SimpleInput(
-              controller: locationController,
-              hint: "Enter lost location ...",
-            ),
+
             Spacer(),
 /*
             Row(

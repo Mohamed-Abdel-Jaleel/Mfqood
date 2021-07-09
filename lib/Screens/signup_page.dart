@@ -60,7 +60,10 @@ class _SignupPageState extends State<SignupPage> {
     if(res.statusCode == 201 ){
       jsonResponse = jsonDecode(res.body);
       var token = jsonResponse['tokens']['access']['token'];
+      var id = jsonResponse['user']['_id'];
+
       prefs.setString("token", token);
+      prefs.setString("id", id);
 
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(

@@ -55,8 +55,12 @@ class _LoginPageState extends State<LoginPage> {
 
       jsonResponse = jsonDecode(res.body);
       var token = jsonResponse['tokens']['access']['token'];
+      var id = jsonResponse['user']['_id'];
+
       prefs.setString("token", token);
-      
+      prefs.setString("id", id);
+
+
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) {
