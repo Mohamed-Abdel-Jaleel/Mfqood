@@ -6,6 +6,7 @@ import 'package:mfqood/Models/child.dart';
 import 'package:mfqood/Screens/found_page.dart';
 import 'package:mfqood/Screens/login_page.dart';
 import 'package:mfqood/Screens/lost_page.dart';
+import 'package:mfqood/Screens/phone_code_auth.dart';
 import 'package:mfqood/Screens/update_user_data.dart';
 import 'package:mfqood/Widgets/child_widget.dart';
 import 'package:mfqood/Widgets/const_style.dart';
@@ -29,23 +30,28 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    getUserData();
     getChildData().then((value) {
       setState(() {
         childs.addAll(value);
       });
     });
-    getUserData();
     super.initState();
   }
 
   Future logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.remove("token");
-    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-      builder: (context) {
-        return LoginPage();
-      },
-    ), (route) => false);
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (context){
+        return PhoneCodeAuth();
+      }),
+    );
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // prefs.remove("token");
+    // Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+    //   builder: (context) {
+    //     return LoginPage();
+    //   },
+    // ), (route) => false);
   }
 
   Future getUserData() async {
@@ -92,8 +98,6 @@ class _HomePageState extends State<HomePage> {
     }
     return data;
   }
-
-
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -192,22 +196,15 @@ class _HomePageState extends State<HomePage> {
                 child: Container(
                   width: 140,
                   height: 140,
+                  color: Color(0xFF9E9E9E),
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Theme.of(context).primaryColor,
-                      width: 4,
-                    ),
+
                   ),
                   child: userImage == null || userImage == ""
                       ? IconButton(
-                          onPressed: () {
-                            Navigator.of(context)
-                                .push(MaterialPageRoute(builder: (context) {
-                              return UpdateUser();
-                            }));
-                          },
+                          onPressed: () => openEditUser(context),
                           icon: Image.asset(
                             "images/icons/open_camera.png",
                             fit: BoxFit.scaleDown,
@@ -215,19 +212,12 @@ class _HomePageState extends State<HomePage> {
                         )
                       : Image.network(
                           userImage!,
-                          fit: BoxFit.contain,
                         ),
                 ),
-                padding: EdgeInsets.all(24),
               ),
               ListTile(
                 trailing: IconButton(
-                  onPressed: (){
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (context) {
-                      return UpdateUser();
-                    }));
-                  },
+                  onPressed: () => openEditUser(context),
                   icon: Icon(
                     Icons.edit,
                     color: Theme.of(context).primaryColor,
@@ -241,12 +231,7 @@ class _HomePageState extends State<HomePage> {
               ),
               ListTile(
                 trailing: IconButton(
-                  onPressed: (){
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (context) {
-                      return UpdateUser();
-                    }));
-                  },
+                  onPressed: () => openEditUser(context),
                   icon: Icon(
                     Icons.edit,
                     color: Theme.of(context).primaryColor,
@@ -260,12 +245,7 @@ class _HomePageState extends State<HomePage> {
               ),
               ListTile(
                 trailing: IconButton(
-                  onPressed: (){
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (context) {
-                      return UpdateUser();
-                    }));
-                  },
+                  onPressed: () => openEditUser(context),
                   icon: Icon(
                     Icons.edit,
                     color: Theme.of(context).primaryColor,
@@ -295,5 +275,16 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+
+  openEditUser(context) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return UpdateUser(
+        image:userImage ,
+        email: userEmail,
+        name: userName,
+        phone: userPhone,
+      );
+    }));
   }
 }

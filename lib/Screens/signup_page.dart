@@ -54,7 +54,7 @@ class _SignupPageState extends State<SignupPage> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    var res = await http.post(url , body: body);
+    var res = await http.post(url , body: body );
     var jsonResponse ;
 
     if(res.statusCode == 201 ){

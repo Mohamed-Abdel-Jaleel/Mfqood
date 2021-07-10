@@ -104,7 +104,8 @@ class _LostPageState extends State<LostPage> {
 
     request.send().then((response) {
       if (response.statusCode == 201 || response.statusCode == 200) {
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
           builder: (context) {
             return HomePage();
           },

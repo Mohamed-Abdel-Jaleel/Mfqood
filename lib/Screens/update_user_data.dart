@@ -1,39 +1,59 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:mfqood/Screens/home_page.dart';
 import 'package:mfqood/Widgets/const_style.dart';
+import 'package:mfqood/Widgets/custom_action_bar.dart';
 import 'package:mfqood/Widgets/custom_button.dart';
 import 'package:mfqood/Widgets/simple_custom_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:toast/toast.dart';
 
 class UpdateUser extends StatefulWidget {
-  const UpdateUser({Key? key}) : super(key: key);
+  final String? name, phone, email, image;
+
+  const UpdateUser(
+      {Key? key,
+      required this.name,
+      required this.phone,
+      required this.email,
+      required this.image})
+      : super(key: key);
 
   @override
   _UpdateUserState createState() => _UpdateUserState();
 }
 
 class _UpdateUserState extends State<UpdateUser> {
-
   File? _image;
-  String _imgPath = "images/icons/open_camera.png";
+  String? _imgPath;
+
   bool _isLoading = false;
-  final TextEditingController ageController = TextEditingController();
-  final TextEditingController genderController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
+  @override
+  void initState() {
+    nameController.text = widget.name!;
+    emailController.text = widget.email!;
+    phoneController.text = widget.phone!;
+    _imgPath = widget.image!;
+
+    super.initState();
+  }
 
   Future getCameraImage(context) async {
     final _picker = ImagePicker();
-
     final PickedFile? pickedFile = await _picker.getImage(
       source: ImageSource.gallery,
-      // imageQuality: 100,
+      imageQuality: 25,
     );
     _image = File(pickedFile!.path);
-    uploadUserImage(_image!.path);
+    //uploadUserImage(_image!.path);
   }
 
   uploadUserImage(imagePath) async {
@@ -63,11 +83,38 @@ class _UpdateUserState extends State<UpdateUser> {
         setState(() {
           _imgPath = imagePath;
         });
+        Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context){
+          return HomePage();
+        })
+        , (route) => false);
       } else {
-        print("Failed");
+        setState(() {
+          _isLoading=false;
+        });
+
       }
     });
   }
+
+  updateDetails(context){
+    setState(() {
+      _isLoading = true;
+    });
+    if(_image!=null){
+      uploadUserImage(_image!.path);
+    }else{
+      Toast.show("Choose Image first",
+          context,
+          duration: Toast.LENGTH_LONG,
+          gravity:  Toast.BOTTOM ,);
+
+      setState(() {
+        _isLoading=false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,76 +127,62 @@ class _UpdateUserState extends State<UpdateUser> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-              child: SizedBox(
-                height: 100,
-                child: Image.asset(
-                  'images/found_logo.png',
-                  fit: BoxFit.contain,
-                ),
-              ),
+            CusomActionBar(
+              openDrawer: (){},
+              hasIconButtons: true,
+              hasBackground: false,
             ),
-            _image != null
-                ? Container(
+            SizedBox(
+              height: 24,
+            ),
+
+            Container(
               width: 100,
               height: 100,
+              color: Color(0xFFE5E4E4),
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
               ),
-              child: Image.file(
-                File(_image!.path),
-                fit: BoxFit.contain,
-              ),
-            )
-                : IconButton(
-              onPressed: () => getCameraImage(context),
-              icon: Image.asset(
-                'images/icons/open_camera.png',
-              ),
+              child: _imgPath == null || _imgPath == ""
+                  ? IconButton(
+                      onPressed: () => getCameraImage(context),
+                      icon: Image.asset(
+                        'images/icons/open_camera.png',
+                      ),
+                    )
+                  : Image.network(
+                      _imgPath!,
+                      fit: BoxFit.contain,
+                    ),
             ),
             TextButton(
               onPressed: () => getCameraImage(context),
               child: Text(
-                'Take Photo',
+                'Choose Photo',
                 style: ConstStyle.semiBoldedColoredText,
               ),
             ),
-            SimpleInput(
-              controller: locationController,
-              hint: "Enter CHild Name ...",
-            ),
-
-            SimpleInput(
-              controller: ageController,
-              hint: "Enter Child Age ...",
+            SizedBox(
+              height: 24,
             ),
             SimpleInput(
-              controller: genderController,
-              hint: "Enter Child gender ...",
+              controller: nameController,
+              hint: "Enter User Name ...",
             ),
-
+            SimpleInput(
+              controller: emailController,
+              hint: "Enter User Email ...",
+            ),
+            SimpleInput(
+              controller: phoneController,
+              hint: "Enter User Phone ...",
+            ),
             Spacer(),
-/*
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Name : ',
-                  style: ConstStyle.semiBoldedColoredText,
-                ),
-                Text(
-                  'Mohamed Ateya ',
-                  style: ConstStyle.DefaultText,
-                ),
-              ],
-            ),
-*/
             CustomButton(
               isLoading: _isLoading,
-              text: 'Add',
-              onPressed: () => getCameraImage(context),
+              text: 'Update',
+              onPressed: () => updateDetails(context),
               height: 65,
               padding: 36,
               radius: 20,
@@ -163,5 +196,4 @@ class _UpdateUserState extends State<UpdateUser> {
       ),
     );
   }
-
 }

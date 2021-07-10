@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../clip_path_class.dart';
+import 'clip_path_class.dart';
 
 class CusomActionBar extends StatelessWidget {
 
