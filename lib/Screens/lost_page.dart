@@ -50,12 +50,6 @@ class _LostPageState extends State<LostPage> {
     int width = x_2 - x;
     int height = y_2 - y;
 
-    print("left$x");
-    print("right$x_2");
-    print("top$y");
-    print("bottom$y_2");
-
-    print("top$x bottom$y width$width height$height");
 
     File croppedFile =
         await FlutterNativeImage.cropImage(_image!.path, x, y, width, height);
