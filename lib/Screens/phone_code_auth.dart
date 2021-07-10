@@ -23,6 +23,7 @@ class PhoneCodeAuth extends StatelessWidget {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
+    
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -34,10 +35,11 @@ class PhoneCodeAuth extends StatelessWidget {
     };
 
 
-    var res = await http.post(url , body: body ,headers: headers );
+    var res = await http.post(url , body: jsonEncode(body) ,headers: headers );
     var jsonResponse ;
 
 
+    print(res.body);
     if(res.statusCode == 200 ){
       // jsonResponse = jsonDecode(res.body);
 
