@@ -1,16 +1,13 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:mfqood/Widgets/const_style.dart';
 import 'package:mfqood/Widgets/custom_action_bar.dart';
 import 'package:mfqood/Widgets/custom_button.dart';
-import 'package:mfqood/Widgets/simple_custom_input.dart';
 import 'package:toast/toast.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'home_page.dart';
 
 class PhoneCodeAuth extends StatelessWidget {
   PhoneCodeAuth({Key? key}) : super(key: key);
@@ -36,7 +33,7 @@ class PhoneCodeAuth extends StatelessWidget {
 
 
     var res = await http.post(url , body: jsonEncode(body) ,headers: headers );
-    var jsonResponse ;
+    // var jsonResponse ;
 
 
     print(res.body);
@@ -80,7 +77,7 @@ class PhoneCodeAuth extends StatelessWidget {
               child: SizedBox(
                 height: 100,
                 child: Image.asset(
-                  'images/lost_logo.png',
+                  'images/verify.png',
                   fit: BoxFit.contain,
                 ),
               ),
