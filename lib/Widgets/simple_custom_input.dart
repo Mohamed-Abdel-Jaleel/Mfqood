@@ -19,7 +19,6 @@ class SimpleInput extends StatelessWidget {
           padding:EdgeInsets.only(left:12),
           child: TextFormField(
 
-            enabled: false,
             controller: controller,
             decoration:InputDecoration(
               hintText:hint,
