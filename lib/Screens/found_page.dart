@@ -12,7 +12,7 @@ import 'package:http_parser/http_parser.dart';
 import 'home_page.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
-
+import 'package:toast/toast.dart';
 class FoundPage extends StatefulWidget {
   const FoundPage({Key? key}) : super(key: key);
 
@@ -22,24 +22,14 @@ class FoundPage extends StatefulWidget {
 
 class _FoundPageState extends State<FoundPage> {
   File? _image;
+  String genderSelected = "male";
+
   bool _isLoading = false;
   final TextEditingController ageController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController locationController = TextEditingController();
 
-  // Future getCameraImage(context) async {
-  //   final _picker = ImagePicker();
-  //
-  //   final PickedFile? pickedFile =
-  //       await _picker.getImage(
-  //           source: ImageSource.camera,
-  //     imageQuality: 50,
-  //   );
-  //
-  //   setState(() {
-  //     _image = pickedFile;
-  //   });
-  // }
+
   Future getCameraImage(context) async {
     final _picker = ImagePicker();
 
@@ -63,12 +53,6 @@ class _FoundPageState extends State<FoundPage> {
     int width = x_2 - x;
     int height = y_2 - y;
 
-    print("left$x");
-    print("right$x_2");
-    print("top$y");
-    print("bottom$y_2");
-
-    print("top$x bottom$y width$width height$height");
 
     File croppedFile =
     await FlutterNativeImage.cropImage(_image!.path, x, y, width, height);
@@ -105,13 +89,14 @@ class _FoundPageState extends State<FoundPage> {
       contentType: new MediaType('image', 'jpg'),
     );
 
+
     var request = new http.MultipartRequest("POST", url);
 
     request.headers.addAll(headers);
 
     request.fields['age'] = ageController.text.trim();
-    request.fields['gender'] = genderController.text.trim();
-    request.fields['location'] = locationController.text.trim();
+    request.fields['gender'] = genderSelected;
+    request.fields['name'] = locationController.text.trim();
     request.fields['status'] = 'found';
     request.fields['lostDate'] = '11 AM';
 
@@ -133,6 +118,31 @@ class _FoundPageState extends State<FoundPage> {
           _isLoading = false;
         });
       }
+    });
+  }
+  _validate(context){
+    FocusScope.of(context).unfocus();
+    if(ageController.text.isEmpty
+        || locationController.text.isEmpty ||
+        _image!.path.isEmpty
+    ){
+      Toast.show("All Fields can\'t be Empty\n"
+          "- enter all required fields",
+        context,
+        duration: Toast.LENGTH_LONG,
+        gravity:  Toast.BOTTOM ,);
+
+    }else{
+      _addLostChild(context);
+    }
+  }
+
+
+  int selectedRadio = 0;
+
+  setSelected(int val) {
+    setState(() {
+      selectedRadio = val;
     });
   }
 
@@ -198,9 +208,31 @@ class _FoundPageState extends State<FoundPage> {
               controller: ageController,
               hint: "Enter Child Age ...",
             ),
-            SimpleInput(
-              controller: genderController,
-              hint: "Enter Child gender ...",
+            Padding(
+              padding: const EdgeInsets.fromLTRB(36, 8, 36, 0),
+              child: RadioListTile(
+                value: 1,
+                groupValue: selectedRadio,
+                onChanged: (val) {
+                  genderSelected = "male";
+                  val as int;
+                  setSelected(val);
+                },
+                title: Text("Male"),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(36, 0, 36, 0),
+              child: RadioListTile(
+                value: 2,
+                groupValue: selectedRadio,
+                onChanged: (val) {
+                  genderSelected = "female";
+                  val as int;
+                  setSelected(val);
+                },
+                title: Text("Female"),
+              ),
             ),
 
             Spacer(),
@@ -222,7 +254,7 @@ class _FoundPageState extends State<FoundPage> {
             CustomButton(
               isLoading: _isLoading,
               text: 'Add',
-              onPressed: () => _addLostChild(context),
+              onPressed: () => _validate(context),
               height: 65,
               padding: 36,
               radius: 20,

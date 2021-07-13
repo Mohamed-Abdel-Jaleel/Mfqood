@@ -40,18 +40,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future logout() async {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (context){
-        return PhoneCodeAuth();
-      }),
-    );
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // prefs.remove("token");
-    // Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
-    //   builder: (context) {
-    //     return LoginPage();
-    //   },
-    // ), (route) => false);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("token");
+    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
+      builder: (context) {
+        return LoginPage();
+      },
+    ), (route) => false);
   }
 
   Future getUserData() async {
@@ -61,7 +57,6 @@ class _HomePageState extends State<HomePage> {
 
     var res = await http.get(url);
     if (res.statusCode == 200) {
-      print(res.body);
       var jsonResponse = json.decode(res.body);
 
       setState(() {
@@ -91,10 +86,6 @@ class _HomePageState extends State<HomePage> {
       for (var child in jsonResponse["childs"]) {
         data.add(Child.fromJson(child));
       }
-      // for (Child c in data) {
-      //   print(c.status);
-      //   print(c.image);
-      // }
     }
     return data;
   }
@@ -167,7 +158,7 @@ class _HomePageState extends State<HomePage> {
                       ...childs.map((e) {
                         return ChildCard(
                           image: e.image,
-                          name: e.location,
+                          name: e.name,
                           age: e.age,
                           status: e.status,
                         );
@@ -194,8 +185,8 @@ class _HomePageState extends State<HomePage> {
               ),
               DrawerHeader(
                 child: Container(
-                  width: 140,
-                  height: 140,
+                  width: 120,
+                  height: 120,
                   color: Color(0xFF9E9E9E),
                   clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(

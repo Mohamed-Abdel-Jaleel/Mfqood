@@ -1,34 +1,43 @@
+// @dart=2.9
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mfqood/Screens/home_page.dart';
 import 'package:mfqood/Screens/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:custom_splash/custom_splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString("token");
+  String token = prefs.getString("token");
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
     statusBarColor: Color(0xFF81248A), // status bar color
     statusBarBrightness: Brightness.light, //status bar brigtness
     statusBarIconBrightness: Brightness.light, //status barIcon Brightness
-    // systemNavigationBarColor: Colors.white, // navigation bar color
-    // systemNavigationBarDividerColor: Colors.greenAccent,//Navigation bar divider color
-    // systemNavigationBarIconBrightness: Brightness.light, //navigation bar icon
   ));
-  runApp(MyApp(
-    token: token,
+
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: CustomSplash(
+      imagePath: 'images/textLogo.png',
+      backGroundColor: Color(0xFF81248A),
+      animationEffect: 'zoom-out',
+      logoSize: 250,
+      home: MyApp(token: token, ),
+      duration: 2000,
+      type: CustomSplashType.StaticDuration,
+    ),
   ));
 }
 
 class MyApp extends StatelessWidget {
-  final String? token;
+  final String token;
 
-  const MyApp({Key? key, required this.token}) : super(key: key);
+  const MyApp({Key key,  this.token}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

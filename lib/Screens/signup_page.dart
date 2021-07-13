@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:mfqood/Screens/login_page.dart';
+import 'package:mfqood/Screens/phone_code_auth.dart';
 import 'package:mfqood/Widgets/const_style.dart';
 import 'package:mfqood/Widgets/custom_action_bar.dart';
 import 'package:mfqood/Widgets/custom_button.dart';
@@ -9,7 +10,7 @@ import 'package:mfqood/Widgets/custom_input.dart';
 import 'package:mfqood/Widgets/custom_password_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:toast/toast.dart';
 import 'home_page.dart';
 
 
@@ -30,6 +31,30 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _phoneController= TextEditingController();
 
   final TextEditingController _passwordController= TextEditingController();
+  _validate(context){
+    FocusScope.of(context).unfocus();
+    if(_nameController.text.isEmpty
+        || _emailController.text.isEmpty
+        || _phoneController.text.isEmpty || _passwordController.text.isEmpty
+    ){
+      Toast.show("All Fields can\'t be Empty\n"
+          "- enter all required fields",
+        context,
+        duration: Toast.LENGTH_LONG,
+        gravity:  Toast.BOTTOM ,);
+    }else if(_passwordController.text.length<8){
+      Toast.show("Password must be 8 letters at least \n"
+          "# Minimum 1 Upper case\n"
+          "# Minimum 1 lowercase\n"
+          "# Minimum 1 Numeric Number\n"
+          "# Minimum 1 Special Character",
+        context,
+        duration: Toast.LENGTH_LONG,
+        gravity:  Toast.BOTTOM ,);
+    }else{
+      _signUp(context);
+    }
+  }
 
   _signUp(context) async {
     FocusScope.of(context).unfocus();
@@ -48,7 +73,7 @@ class _SignupPageState extends State<SignupPage> {
       "name": name,
       "email": email,
       "password": pass,
-      "phone": phone,
+      "phone": "2$phone",
       "role": "user"
     };
 
@@ -68,7 +93,7 @@ class _SignupPageState extends State<SignupPage> {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (context) {
-              return HomePage();
+              return PhoneCodeAuth(phone: phone,);
             },
           ), (route) => false
       );
@@ -172,7 +197,7 @@ class _SignupPageState extends State<SignupPage> {
             //password
             CustomPasswordInput(
               onChanged: (val){},
-              onSumbitted: (val){},
+              onSumbitted: (val)=>_validate(context),
               prefixIcon: Icons.lock,
               controller: _passwordController,
               hint: 'Password',
@@ -185,7 +210,7 @@ class _SignupPageState extends State<SignupPage> {
               padding: 36,
               height: 65,
               onPressed: (){
-                _signUp(context);
+                _validate(context);
               },
               text: 'SIGN UP',
             ),

@@ -9,20 +9,16 @@ class ChildResponse{
         message = json['age'],
         childs = json['childs'];
 
-
   //List<Child> childList = childs.map((c) => Child.fromJson(c)).toList();
-
-
-
 }
 class Child {
-  final String _id, gender, location, image, imageID, status;
+  final String _id, gender, name, image, imageID, status;
   final int age;
   Child(
     this._id,
     this.age,
     this.gender,
-    this.location,
+    this.name,
     this.image,
     this.imageID,
     this.status,
@@ -32,7 +28,7 @@ class Child {
       : _id = json['_id'],
         age = json['age'],
         gender = json['gender'],
-        location = json['location'],
+        name = json['name'],
         image = json['image'],
         imageID = json['imageID'],
         status = json['status'];
@@ -41,10 +37,9 @@ class Child {
         '_id': _id,
         'age': age,
         'gender': gender,
-        'location': location,
+        'name': name,
         'image': image,
         'imageID': imageID,
         'status': status
       };
-
 }

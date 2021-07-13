@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mfqood/Screens/home_page.dart';
 import 'package:mfqood/Widgets/const_style.dart';
@@ -29,7 +30,7 @@ class UpdateUser extends StatefulWidget {
 
 class _UpdateUserState extends State<UpdateUser> {
   File? _image;
-  String? _imgPath;
+  String? _imgPath , assetImagePath;
 
   bool _isLoading = false;
   TextEditingController nameController = TextEditingController();
@@ -53,6 +54,9 @@ class _UpdateUserState extends State<UpdateUser> {
       imageQuality: 25,
     );
     _image = File(pickedFile!.path);
+    setState(() {
+      assetImagePath = pickedFile.path;
+    });
     //uploadUserImage(_image!.path);
   }
 
@@ -145,12 +149,13 @@ class _UpdateUserState extends State<UpdateUser> {
                 shape: BoxShape.circle,
               ),
               child: _imgPath == null || _imgPath == ""
-                  ? IconButton(
-                      onPressed: () => getCameraImage(context),
-                      icon: Image.asset(
-                        'images/icons/open_camera.png',
-                      ),
-                    )
+                  ?assetImagePath==null||assetImagePath==""? IconButton(
+                onPressed: () => getCameraImage(context),
+                icon: Image.asset(
+                  'images/icons/open_camera.png',
+                ),
+              )
+                  :Image.file(File(assetImagePath!))
                   : Image.network(
                       _imgPath!,
                       fit: BoxFit.contain,

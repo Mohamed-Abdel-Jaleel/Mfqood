@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:toast/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:mfqood/Screens/home_page.dart';
 import 'package:mfqood/Screens/signup_page.dart';
@@ -22,13 +22,12 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController= TextEditingController();
   final TextEditingController passwordController= TextEditingController();
 
-   _login(context) async {
+  _login(context) async {
      FocusScope.of(context).unfocus();
 
      setState(() {
        _loginFormLoading = true;
      });
-
 
 
     //var url = Uri.parse("http://localhost:8000/api/auth/login");
@@ -76,6 +75,22 @@ class _LoginPageState extends State<LoginPage> {
       passwordController.clear();
     }
 
+  }
+  _validate(context){
+    FocusScope.of(context).unfocus();
+    if(emailController.text.isEmpty || passwordController.text.isEmpty){
+       Toast.show("Email and Password can\'t be Empty",
+         context,
+         duration: Toast.LENGTH_LONG,
+         gravity:  Toast.BOTTOM ,);
+     }else if(passwordController.text.length<8){
+       Toast.show("Password is too short , must be 8 letters at least ",
+         context,
+         duration: Toast.LENGTH_LONG,
+         gravity:  Toast.BOTTOM ,);
+     }else{
+       _login(context);
+     }
   }
 
   @override
@@ -154,7 +169,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 65,
               isLoading: _loginFormLoading,
               onPressed: (){
-                _login(context);
+                _validate(context);
               },
               text: 'LOGIN',
             ),
@@ -168,7 +183,7 @@ class _LoginPageState extends State<LoginPage> {
                     'Forget Password ?',
                     style: ConstStyle.ColoredButtonTextStyle,
                   ),
-                  onPressed: (){print('Forget Password ?');},
+                  onPressed: (){},
 
                 ),
               ),

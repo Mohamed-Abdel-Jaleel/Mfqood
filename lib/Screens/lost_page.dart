@@ -12,6 +12,7 @@ import 'package:http_parser/http_parser.dart';
 import 'home_page.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:toast/toast.dart';
 
 class LostPage extends StatefulWidget {
   const LostPage({Key? key}) : super(key: key);
@@ -23,9 +24,10 @@ class LostPage extends StatefulWidget {
 class _LostPageState extends State<LostPage> {
   File? _image;
   bool _isLoading = false;
+  String genderSelected = "male";
   final TextEditingController ageController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
 
   Future getCameraImage(context) async {
     final _picker = ImagePicker();
@@ -49,7 +51,6 @@ class _LostPageState extends State<LostPage> {
     int y_2 = faces[0].boundingBox.bottom.toInt();
     int width = x_2 - x;
     int height = y_2 - y;
-
 
     File croppedFile =
         await FlutterNativeImage.cropImage(_image!.path, x, y, width, height);
@@ -91,8 +92,8 @@ class _LostPageState extends State<LostPage> {
     request.headers.addAll(headers);
 
     request.fields['age'] = ageController.text.trim();
-    request.fields['gender'] = genderController.text.trim();
-    request.fields['location'] = locationController.text.trim();
+    request.fields['gender'] = genderSelected;
+    request.fields['name'] = nameController.text.trim();
     request.fields['status'] = 'lost';
     request.fields['lostDate'] = '11 AM';
 
@@ -104,17 +105,43 @@ class _LostPageState extends State<LostPage> {
 
     request.send().then((response) {
       if (response.statusCode == 201 || response.statusCode == 200) {
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(
           builder: (context) {
             return HomePage();
           },
         ), (route) => false);
       } else {
+        print(response.toString());
+        print(response.statusCode);
         setState(() {
           _isLoading = false;
         });
       }
+    });
+  }
+
+  _validate(context) {
+    FocusScope.of(context).unfocus();
+    if (ageController.text.isEmpty ||
+        nameController.text.isEmpty ||
+        _image!.path.isEmpty) {
+      Toast.show(
+        "All Fields can\'t be Empty\n"
+        "- enter all required fields",
+        context,
+        duration: Toast.LENGTH_LONG,
+        gravity: Toast.BOTTOM,
+      );
+    } else {
+      _addLostChild(context);
+    }
+  }
+
+  int selectedRadio = 0;
+
+  setSelected(int val) {
+    setState(() {
+      selectedRadio = val;
     });
   }
 
@@ -131,7 +158,7 @@ class _LostPageState extends State<LostPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CusomActionBar(
-              openDrawer: (){},
+              openDrawer: () {},
               hasBackground: false,
               hasIconButtons: true,
             ),
@@ -164,7 +191,6 @@ class _LostPageState extends State<LostPage> {
                       'images/icons/choose_img.png',
                     ),
                   ),
-
             TextButton(
               onPressed: () => getCameraImage(context),
               child: Text(
@@ -173,38 +199,48 @@ class _LostPageState extends State<LostPage> {
               ),
             ),
             SimpleInput(
-              controller: locationController,
+              controller: nameController,
               hint: "Enter CHild Name ...",
             ),
             SimpleInput(
               controller: ageController,
               hint: "Enter Child Age ...",
             ),
-            SimpleInput(
-              controller: genderController,
-              hint: "Enter Child gender ...",
+            // SimpleInput(
+            //   controller: genderController,
+            //   hint: "Enter Child gender ...",
+            // ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(36, 8, 36, 0),
+              child: RadioListTile(
+                value: 1,
+                groupValue: selectedRadio,
+                onChanged: (val) {
+                  genderSelected = "male";
+                  val as int;
+                  setSelected(val);
+                },
+                title: Text("Male"),
+              ),
             ),
-
+            Padding(
+              padding: const EdgeInsets.fromLTRB(36, 0, 36, 0),
+              child: RadioListTile(
+                value: 2,
+                groupValue: selectedRadio,
+                onChanged: (val) {
+                  genderSelected = "female";
+                  val as int;
+                  setSelected(val);
+                },
+                title: Text("Female"),
+              ),
+            ),
             Spacer(),
-/*
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Name : ',
-                  style: ConstStyle.semiBoldedColoredText,
-                ),
-                Text(
-                  'Mohamed Ateya ',
-                  style: ConstStyle.DefaultText,
-                ),
-              ],
-            ),
-*/
             CustomButton(
               isLoading: _isLoading,
               text: 'Add',
-              onPressed: () => _addLostChild(context),
+              onPressed: () => _validate(context),
               height: 65,
               padding: 36,
               radius: 20,

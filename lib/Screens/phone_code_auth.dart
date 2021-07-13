@@ -8,19 +8,21 @@ import 'package:toast/toast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'home_page.dart';
+
 
 class PhoneCodeAuth extends StatelessWidget {
-  PhoneCodeAuth({Key? key}) : super(key: key);
+  final String phone;
+  PhoneCodeAuth({Key? key, required this.phone}) : super(key: key);
 
   TextEditingController _controller = TextEditingController();
 
   verifyWithCode(context) async {
 
     var url = Uri.parse("https://mafkoud-api.herokuapp.com/api/auth/verify/phone");
-
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString("token");
-    
+
     Map<String, String> headers = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -31,26 +33,28 @@ class PhoneCodeAuth extends StatelessWidget {
       "code": _controller.text,
     };
 
-
     var res = await http.post(url , body: jsonEncode(body) ,headers: headers );
-    // var jsonResponse ;
-
-
-    print(res.body);
+    var jsonResponse = jsonDecode(res.body);
+    var massage = jsonResponse['message'];
     if(res.statusCode == 200 ){
-      // jsonResponse = jsonDecode(res.body);
-
-      Toast.show("Success",
+      Toast.show("Success $massage",
         context,
         duration: Toast.LENGTH_LONG,
         gravity:  Toast.BOTTOM ,);
-      // Navigator.of(context).pushAndRemoveUntil(
-      //     MaterialPageRoute(
-      //       builder: (context) {
-      //         return HomePage();
-      //       },
-      //     ), (route) => false
-      // );
+
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (context) {
+              return HomePage();
+            },
+          ), (route) => false
+      );
+    }else{
+      Toast.show(massage,
+        context,
+        duration: Toast.LENGTH_LONG,
+        gravity:  Toast.BOTTOM ,);
+
     }
 
   }
@@ -95,7 +99,7 @@ class PhoneCodeAuth extends StatelessWidget {
 
              SizedBox(height: 42,),
              Text(
-                "please type the verification code sent to +20123456789",
+                "please type the verification code sent to +2$phone",
                 style: ConstStyle.semiBoldedText,
                 textAlign: TextAlign.center,
               ),
