@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         userEmail = jsonResponse["user"]["email"];
         userPhone = jsonResponse["user"]["phone"];
-        userName = jsonResponse["user"]["name"];
+        userName  = jsonResponse["user"]["name"];
         userImage = jsonResponse["user"]["profileImage"];
       });
     }

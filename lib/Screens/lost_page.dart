@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:mfqood/Widgets/const_style.dart';
 import 'package:mfqood/Widgets/custom_action_bar.dart';
@@ -25,9 +27,39 @@ class _LostPageState extends State<LostPage> {
   File? _image;
   bool _isLoading = false;
   String genderSelected = "male";
+  String? lostTime;
   final TextEditingController ageController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
+
+
+  Future<void> _selectTime(BuildContext context) async {
+
+    TimeOfDay initialTime = TimeOfDay.now();
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+    int? h;
+    if (pickedTime!.period == DayPeriod.pm) {
+      if (pickedTime.hour > 12) {
+        h = pickedTime.hour - 12;
+      } else {
+        h = pickedTime.hour;
+      }
+      lostTime = "$h:${pickedTime.minute} PM";
+    } else {
+      if (pickedTime.hour == 0) {
+        h = pickedTime.hour + 12;
+      } else {
+        h = pickedTime.hour;
+      }
+      lostTime = "$h:${pickedTime.minute} AM";
+    }
+    setState(() {
+      lostTime;
+    });
+  }
 
   Future getCameraImage(context) async {
     final _picker = ImagePicker();
@@ -95,7 +127,7 @@ class _LostPageState extends State<LostPage> {
     request.fields['gender'] = genderSelected;
     request.fields['name'] = nameController.text.trim();
     request.fields['status'] = 'lost';
-    request.fields['lostDate'] = '11 AM';
+    request.fields['lostDate'] = lostTime!;
 
     request.files.add(file);
 
@@ -137,7 +169,7 @@ class _LostPageState extends State<LostPage> {
     }
   }
 
-  int selectedRadio = 0;
+  int selectedRadio = 1;
 
   setSelected(int val) {
     setState(() {
@@ -146,10 +178,19 @@ class _LostPageState extends State<LostPage> {
   }
 
   @override
+  void initState() {
+
+    TimeOfDay initialTime = TimeOfDay.now();
+    lostTime = initialTime.toString();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       // key: scaffoldKey,
-      resizeToAvoidBottomInset: false, //new line
+      resizeToAvoidBottomInset: false,
+      //new line
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
@@ -236,6 +277,14 @@ class _LostPageState extends State<LostPage> {
                 title: Text("Female"),
               ),
             ),
+            CustomButton(
+                text: "Pick Lost Time $lostTime",
+                onPressed: () => _selectTime(context),
+                height: 65,
+                padding: 36,
+                radius: 10,
+                backgroundColor: Colors.grey,
+                isLoading: false),
             Spacer(),
             CustomButton(
               isLoading: _isLoading,

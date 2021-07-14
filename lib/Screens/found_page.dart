@@ -23,7 +23,7 @@ class FoundPage extends StatefulWidget {
 class _FoundPageState extends State<FoundPage> {
   File? _image;
   String genderSelected = "male";
-
+  String? foundTime;
   bool _isLoading = false;
   final TextEditingController ageController = TextEditingController();
   final TextEditingController genderController = TextEditingController();
@@ -98,7 +98,7 @@ class _FoundPageState extends State<FoundPage> {
     request.fields['gender'] = genderSelected;
     request.fields['name'] = locationController.text.trim();
     request.fields['status'] = 'found';
-    request.fields['lostDate'] = '11 AM';
+    request.fields['lostDate'] = foundTime!;
 
     request.files.add(file);
 
@@ -120,6 +120,7 @@ class _FoundPageState extends State<FoundPage> {
       }
     });
   }
+
   _validate(context){
     FocusScope.of(context).unfocus();
     if(ageController.text.isEmpty
@@ -138,12 +139,20 @@ class _FoundPageState extends State<FoundPage> {
   }
 
 
-  int selectedRadio = 0;
+  int selectedRadio = 1;
 
   setSelected(int val) {
     setState(() {
       selectedRadio = val;
     });
+  }
+
+
+  @override
+  void initState() {
+    TimeOfDay initialTime = TimeOfDay.now();
+    foundTime = initialTime.toString();
+    super.initState();
   }
 
   @override
